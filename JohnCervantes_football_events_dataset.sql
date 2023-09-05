@@ -265,3 +265,40 @@ SELECT event_team AS team,
 		WHEN "location" = 17 THEN 'More than 35 yards'
 		WHEN "location" = 18 THEN 'More than 40 yards'
 	END AS 'location', COUNT(*) AS frequency FROM events$ WHERE (assist_method <> 0 OR "location" <> 19) AND "location" <> 'NA' GROUP BY event_team, "location" ORDER BY event_team ASC, frequency DESC;
+
+-- For each team, count number of goals scored for each shot location possible assuming that the player scored
+-- grouping based on event team and shot_place
+SELECT event_team AS team, CASE 
+				WHEN shot_place = 3 THEN 'Bottom left'
+				WHEN shot_place = 4 THEN 'Bottom right'
+				WHEN shot_place = 5 THEN 'Center'
+				WHEN shot_place = 11 THEN 'Top center'
+				WHEN shot_place = 13 THEN 'Top left'
+				WHEN shot_place = 12 THEN 'Top right'
+			END AS shot_place, COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY event_team, shot_place ORDER BY event_team ASC, frequency DESC;
+
+SELECT event_team AS team, "time", COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY event_team, "time" ORDER BY event_team ASC, "time" ASC;
+
+SELECT opponent AS team, "time", COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY opponent, "time" ORDER BY opponent ASC, "time" ASC;
+
+SELECT opponent AS team, 
+	CASE
+		WHEN "location" = 1 THEN 'Attacking half'
+		WHEN "location" = 2 THEN 'Defensive half'
+		WHEN "location" = 3 THEN 'Centre of the box'
+		WHEN "location" = 4 THEN 'Left wing'
+		WHEN "location" = 5 THEN 'Right wing'
+		WHEN "location" = 6 THEN 'Difficult angle and long range'
+		WHEN "location" = 7 THEN 'Difficult angle on the left'
+		WHEN "location" = 8 THEN 'Difficult angle on the right'
+		WHEN "location" = 9 THEN 'Left side of the box'
+		WHEN "location" = 10 THEN 'Left side of the six yard box'
+		WHEN "location" = 11 THEN 'Right side of the box'
+		WHEN "location" = 12 THEN 'Right side of the six yard box'
+		WHEN "location" = 13 THEN 'Very close range'
+		WHEN "location" = 14 THEN 'Penalty spot'
+		WHEN "location" = 15 THEN 'Outside the box'
+		WHEN "location" = 16 THEN 'Long range'
+		WHEN "location" = 17 THEN 'More than 35 yards'
+		WHEN "location" = 18 THEN 'More than 40 yards'
+	END AS 'location', COUNT(*) AS frequency FROM events$ WHERE (assist_method <> 0 OR "location" <> 19) AND "location" <> 'NA' GROUP BY opponent, "location" ORDER BY opponent ASC, frequency DESC;
