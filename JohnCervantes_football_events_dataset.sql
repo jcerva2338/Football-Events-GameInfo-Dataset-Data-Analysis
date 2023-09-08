@@ -277,10 +277,14 @@ SELECT event_team AS team, CASE
 				WHEN shot_place = 12 THEN 'Top right'
 			END AS shot_place, COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY event_team, shot_place ORDER BY event_team ASC, frequency DESC;
 
+-- For each team, count the number of goals scored from the start of the match (0-th minute) to the end of the match (90+ minute)
 SELECT event_team AS team, "time", COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY event_team, "time" ORDER BY event_team ASC, "time" ASC;
 
+-- For each team, count the number of goals conceded from the start of the match (0-th minute) to the end of the match (90+ minute)
 SELECT opponent AS team, "time", COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 AND shot_place <> 'NA' AND shot_place IN (3,4,5,11,13,12) GROUP BY opponent, "time" ORDER BY opponent ASC, "time" ASC;
 
+-- For each team, count the assist events that occurred against them at each possible location on a football pitch
+-- by grouping based on the opponent and location
 SELECT opponent AS team, 
 	CASE
 		WHEN "location" = 1 THEN 'Attacking half'
@@ -302,3 +306,16 @@ SELECT opponent AS team,
 		WHEN "location" = 17 THEN 'More than 35 yards'
 		WHEN "location" = 18 THEN 'More than 40 yards'
 	END AS 'location', COUNT(*) AS frequency FROM events$ WHERE (assist_method <> 0 OR "location" <> 19) AND "location" <> 'NA' GROUP BY opponent, "location" ORDER BY opponent ASC, frequency DESC;
+
+-- Get the player list of goals scored sorted in ascending order for each team
+SELECT event_team AS team, player, COUNT(*) AS frequency FROM events$ WHERE is_goal = 1 GROUP BY event_team, player ORDER BY event_team ASC, frequency DESC;
+
+-- Get the number of games played per year for each team by using JOIN and GROUP BY to gather all game events per team each year
+-- and then only count distinct items to get one event per game
+SELECT ginf$.season AS year_played, event_team AS team, COUNT(DISTINCT events$.id_odsp) AS games_played FROM events$ INNER JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp GROUP BY event_team, ginf$.season ORDER BY event_team ASC, year_played ASC;
+
+-- Get the goalscorers of each team based on each season to help visualize the top goalscorers for visualization
+SELECT ginf$.season AS year_played, event_team AS team, player, COUNT(*) AS goals_scored FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, player ORDER BY event_team ASC, year_played ASC, goals_scored DESC;
+
+-- Gather the goals scored per match recorded for each team alongside the year played, the team, and the player who scored
+SELECT ginf$.season AS year_played, ginf$.date AS "date", event_team AS team, player, COUNT(*) AS goals_scored FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, "date", player ORDER BY event_team ASC, year_played ASC, "date" ASC, goals_scored DESC;
