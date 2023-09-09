@@ -317,5 +317,11 @@ SELECT ginf$.season AS year_played, event_team AS team, COUNT(DISTINCT events$.i
 -- Get the goalscorers of each team based on each season to help visualize the top goalscorers for visualization
 SELECT ginf$.season AS year_played, event_team AS team, player, COUNT(*) AS goals_scored FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, player ORDER BY event_team ASC, year_played ASC, goals_scored DESC;
 
+-- Get the top sources of assists for each team based on each season to visualize the top sources of assists
+SELECT ginf$.season AS year_played, event_team AS team, player2 AS "player", COUNT(*) AS assists FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, player2 ORDER BY event_team ASC, year_played ASC, assists DESC;
+
 -- Gather the goals scored per match recorded for each team alongside the year played, the team, and the player who scored
 SELECT ginf$.season AS year_played, ginf$.date AS "date", event_team AS team, player, COUNT(*) AS goals_scored FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, "date", player ORDER BY event_team ASC, year_played ASC, "date" ASC, goals_scored DESC;
+
+-- Gather the assists per match recorded for each team alongside the year played, the team, and the player who assisted
+SELECT ginf$.season AS year_played, ginf$.date AS "date", event_team AS team, player2 AS "player", COUNT(*) AS assists FROM events$ JOIN ginf$ ON events$.id_odsp = ginf$.id_odsp WHERE is_goal = 1 GROUP BY event_team, ginf$.season, "date", player2 ORDER BY event_team ASC, year_played ASC, "date" ASC, assists DESC;
